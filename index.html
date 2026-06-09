@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Distribución de Becas 2026 · APS Phoenix</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1F3864; --navy-2:#2E5496; --ink:#14213D;
+    --gold:#C8A951; --gold-d:#9C7A1A; --gold-l:#E7D49A;
+    --paper:#EEF2F9; --card:#FFFFFF; --line:#D9E1EF; --muted:#5F6B80;
+    --ok:#2E7D52; --ok-bg:#E5F2EB; --warn:#B23A48; --warn-bg:#F8E7E9;
+    --silver:#8A9BB5; --bronze:#C08A4E; --unfunded:#C7CFDD;
+    --display:"Archivo", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --body:"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--paper); color:var(--ink); font-family:var(--body); font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased}
+  .num{font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1}
+
+  /* header */
+  .hd{background:linear-gradient(115deg, var(--ink), var(--navy) 72%); color:#fff; padding:26px clamp(18px,4vw,48px) 24px; border-bottom:4px solid var(--gold)}
+  .hd .kicker{font-family:var(--display); font-weight:700; font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--gold-l); margin:0 0 6px}
+  .hd h1{font-family:var(--display); font-weight:800; letter-spacing:-.01em; font-size:clamp(24px,4.2vw,38px); margin:0 0 8px; line-height:1.05}
+  .hd p{margin:0; color:#C9D4E8; max-width:70ch; font-size:14.5px}
+  .hd .stamp{display:inline-block; margin-top:12px; font-size:12.5px; color:#0F1A30; background:var(--gold-l); padding:4px 11px; border-radius:999px; font-weight:600}
+
+  main{max-width:1120px; margin:0 auto; padding:clamp(18px,3vw,30px) clamp(14px,3vw,30px) 56px}
+
+  /* dials */
+  .controls{display:grid; grid-template-columns:1fr 1fr; gap:18px; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:20px clamp(16px,2.5vw,26px); box-shadow:0 1px 0 rgba(20,33,61,.04)}
+  .dial label{display:block; font-weight:600; color:var(--navy); font-size:14px; margin-bottom:2px}
+  .dial .hint{font-size:12.5px; color:var(--muted); margin-bottom:8px}
+  .dial .big{display:flex; align-items:baseline; gap:6px}
+  .dial .big .pre{font-family:var(--display); font-weight:700; font-size:22px; color:var(--gold-d)}
+  .dial input.figure{font-family:var(--display); font-weight:800; font-size:clamp(30px,5vw,44px); color:var(--ink); border:none; background:transparent; width:100%; padding:0; line-height:1; letter-spacing:-.01em}
+  .dial input.figure:focus{outline:none}
+  .dial .figure::-webkit-outer-spin-button,.dial .figure::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .dial input.figure[type=number]{-moz-appearance:textfield}
+  input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:6px; margin-top:12px; background:linear-gradient(90deg,var(--gold) var(--fill,50%), #E3E9F4 var(--fill,50%)); border-radius:999px; cursor:pointer}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; appearance:none; width:20px; height:20px; border-radius:50%; background:var(--navy); border:3px solid #fff; box-shadow:0 1px 4px rgba(20,33,61,.35); cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--navy);border:3px solid #fff;cursor:pointer}
+  .ctl-foot{grid-column:1/-1; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-top:2px}
+  .ctl-foot .scope{font-size:12.5px; color:var(--muted)}
+  .reset{font-family:var(--body); font-size:13px; font-weight:600; color:var(--navy); background:#fff; border:1px solid var(--line); border-radius:8px; padding:7px 13px; cursor:pointer}
+  .reset:hover{border-color:var(--navy-2); background:#F7F9FD}
+
+  /* step labels */
+  .step{margin:26px 0 12px}
+  .step .ey{font-family:var(--display); font-weight:700; font-size:11.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold-d)}
+  .step h2{font-family:var(--display); font-weight:800; font-size:clamp(19px,2.6vw,23px); margin:2px 0 0; color:var(--ink)}
+
+  /* VOTO 1 panel */
+  .voto1{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:20px clamp(16px,2.5vw,26px); box-shadow:0 1px 0 rgba(20,33,61,.04)}
+  .splitbar{display:flex; height:54px; border-radius:11px; overflow:hidden; border:1px solid var(--line)}
+  .seg{display:flex; flex-direction:column; justify-content:center; padding:0 16px; color:#fff; min-width:0}
+  .seg.li{background:var(--navy)}
+  .seg.open{background:linear-gradient(180deg,var(--gold),#bd9836)}
+  .seg .lbl{font-size:12px; font-weight:600; opacity:.92; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .seg .amt{font-family:var(--display); font-weight:800; font-size:clamp(15px,2vw,20px); line-height:1.1}
+  .seg.open .lbl,.seg.open .amt{color:#1c1606}
+  .splitctl{display:flex; align-items:center; gap:14px; margin-top:12px; flex-wrap:wrap}
+  .splitctl label{font-size:13px; color:var(--navy); font-weight:600; white-space:nowrap}
+  .splitctl input[type=range]{flex:1; min-width:160px; margin-top:0; background:linear-gradient(90deg,var(--navy) var(--fill,75%), #E3E9F4 var(--fill,75%))}
+  .splitctl .rd{font-family:var(--display); font-weight:700; color:var(--ink); font-size:14px; white-space:nowrap}
+
+  .rubric{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:18px}
+  .rcard{border:1px solid var(--line); border-radius:12px; padding:14px 16px; background:#FBFCFE}
+  .rcard.li{border-top:3px solid var(--navy)}
+  .rcard.open{border-top:3px solid var(--gold)}
+  .rcard h3{font-family:var(--display); font-weight:700; font-size:15px; margin:0 0 1px; color:var(--ink)}
+  .rcard .req{font-size:12.5px; color:var(--muted); margin:0 0 12px}
+  .weight{margin-bottom:10px}
+  .weight .wrow{display:flex; justify-content:space-between; align-items:baseline; font-size:13.5px; margin-bottom:3px}
+  .weight .wrow span{color:var(--ink); font-weight:600}
+  .weight .wrow b{font-family:var(--display); color:var(--navy)}
+  .weight input[type=range]{margin-top:0; height:5px}
+  .note-sm{font-size:12px; color:var(--muted); margin:10px 0 0; line-height:1.45}
+  .chips{display:flex; flex-wrap:wrap; gap:7px; margin:4px 0 0}
+  .chip{font-size:12.5px; font-weight:600; color:var(--navy); background:#EEF2FB; border:1px solid #D8E1F2; border-radius:999px; padding:5px 12px}
+  .connect{margin:16px 0 0; padding:11px 14px; background:#F4F7FC; border:1px dashed #C9D5EA; border-radius:10px; font-size:12.8px; color:var(--muted); line-height:1.5}
+  .connect b{color:var(--navy)}
+
+  /* model cards */
+  .models{display:grid; grid-template-columns:1fr 1fr; gap:18px}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:16px; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 1px 0 rgba(20,33,61,.04)}
+  .card .top{padding:18px clamp(16px,2.4vw,24px) 4px}
+  .card .tag{font-family:var(--display); font-weight:700; font-size:11.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--gold-d)}
+  .card h2{font-family:var(--display); font-weight:800; font-size:21px; margin:3px 0 2px; color:var(--ink)}
+  .card .sub{font-size:13px; color:var(--muted); margin:0}
+  .result{padding:8px clamp(16px,2.4vw,24px) 0; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap}
+  .result .count{font-family:var(--display); font-weight:800; font-size:46px; line-height:1; color:var(--navy)}
+  .result .of{font-size:14px; color:var(--muted)}
+  .result .of b{color:var(--ink)}
+  .caps{padding:12px clamp(16px,2.4vw,24px) 4px; display:flex; flex-wrap:wrap; gap:3px}
+  .cap{width:18px; height:18px; flex:0 0 auto}
+  .cap svg{width:100%; height:100%; display:block}
+  .legend{padding:4px clamp(16px,2.4vw,24px) 8px; display:flex; flex-wrap:wrap; gap:6px 14px; font-size:12px; color:var(--muted)}
+  .legend span{display:inline-flex; align-items:center; gap:6px}
+  .dot{width:11px; height:11px; border-radius:3px; flex:0 0 auto}
+  .tiers{padding:6px clamp(16px,2.4vw,24px) 2px; display:flex; flex-direction:column; gap:7px}
+  .tier{display:grid; grid-template-columns:14px 1fr auto auto; align-items:center; gap:8px}
+  .tier .swatch{width:12px;height:12px;border-radius:3px}
+  .tier input[type=text]{border:1px solid var(--line); border-radius:7px; padding:6px 9px; font-family:var(--body); font-size:13.5px; font-weight:600; color:var(--ink); width:100%; background:#fff; min-width:0}
+  .tier .fld{display:flex; align-items:center; gap:3px; border:1px solid var(--line); border-radius:7px; padding:4px 8px; background:#fff}
+  .tier .fld span{font-size:12.5px; color:var(--muted)}
+  .tier .fld input{border:none; background:transparent; font-family:var(--body); font-weight:600; font-size:13.5px; color:var(--ink); width:62px; text-align:right; padding:2px 0}
+  .tier .fld input:focus{outline:none}
+  .tier .fld.qty input{width:34px}
+  .tier .fld:focus-within{border-color:var(--navy-2)}
+  .rows{margin-top:auto; padding:10px clamp(16px,2.4vw,24px) 18px}
+  .row{display:flex; justify-content:space-between; align-items:center; gap:10px; padding:7px 0; border-top:1px solid #EDF1F8; font-size:14px}
+  .row:first-child{border-top:none}
+  .row .k{color:var(--muted)}
+  .row .v{font-weight:700; color:var(--ink); text-align:right}
+  .badge{font-size:12.5px; font-weight:700; padding:3px 11px; border-radius:999px}
+  .badge.ok{color:var(--ok); background:var(--ok-bg)}
+  .badge.bad{color:var(--warn); background:var(--warn-bg)}
+  .flag{margin:0 clamp(16px,2.4vw,24px) 14px; padding:9px 12px; border-radius:9px; font-size:12.8px; background:var(--warn-bg); color:#7d2a35; border:1px solid #E8C9CE}
+  .flag.hide{display:none}
+
+  .compare{margin-top:18px; background:var(--ink); color:#fff; border-radius:16px; padding:20px clamp(18px,3vw,28px); border:1px solid #0d172b}
+  .compare .lead{font-family:var(--display); font-weight:600; font-size:clamp(15px,2vw,18px); line-height:1.4; margin:0 0 16px; color:#EAF0FB}
+  .compare .lead b{color:var(--gold-l)}
+  .grid{display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:1px; background:#33415c; border-radius:11px; overflow:hidden}
+  .grid div{background:var(--ink); padding:11px 14px; font-size:13.5px}
+  .grid .hrow{background:#16223c; font-family:var(--display); font-weight:700; font-size:12px; letter-spacing:.04em; text-transform:uppercase; color:#9FB0CC}
+  .grid .metric{color:#A9B6CE}
+  .grid .va,.grid .vb{font-weight:700; color:#fff}
+  .grid .va.num,.grid .vb.num{font-family:var(--display)}
+
+  footer{margin-top:22px; font-size:12.5px; color:var(--muted); line-height:1.6; text-align:center}
+  footer b{color:var(--navy)}
+
+  @media (max-width:860px){
+    .controls{grid-template-columns:1fr}
+    .rubric{grid-template-columns:1fr}
+    .models{grid-template-columns:1fr}
+    .compare .grid{grid-template-columns:1fr}
+    .grid .hrow:nth-child(1){display:none}
+  }
+  :focus-visible{outline:2px solid var(--gold-d); outline-offset:2px; border-radius:4px}
+  @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+  <header class="hd">
+    <p class="kicker">APS Phoenix · Distribución de Becas 2026</p>
+    <h1>Calculadora de reparto de becas</h1>
+    <p>Mueve los fondos y los aplicantes. <b style="color:#fff">Paso 1 (Voto&nbsp;1):</b> define cómo se asignan y puntúan los fondos. <b style="color:#fff">Paso 2 (Voto&nbsp;2):</b> compara cómo se reparten las becas. Todas las becas son en múltiplos de $500.</p>
+    <span class="stamp">Borrador · cifras reales: aplicantes el 1 de julio, fondos el 21 de julio</span>
+  </header>
+
+  <main>
+    <!-- DIALS -->
+    <section class="controls">
+      <div class="dial">
+        <label for="budget">Fondos disponibles</label>
+        <div class="hint">Cuánto dinero hay para repartir este año</div>
+        <div class="big"><span class="pre">$</span><input class="figure num" id="budget" type="number" min="0" max="30000" step="500" value="15000"></div>
+        <input id="budgetR" type="range" min="0" max="30000" step="500" value="15000" aria-label="Ajustar fondos disponibles">
+      </div>
+      <div class="dial">
+        <label for="apps">Número de aplicantes</label>
+        <div class="hint">Cuántos estudiantes solicitaron una beca</div>
+        <div class="big"><input class="figure num" id="apps" type="number" min="1" max="60" step="1" value="20"></div>
+        <input id="appsR" type="range" min="1" max="60" step="1" value="20" aria-label="Ajustar número de aplicantes">
+      </div>
+      <div class="ctl-foot">
+        <span class="scope">Las becas se otorgan solo en múltiplos de <b>$500</b> (piso de $500).</span>
+        <button class="reset" id="reset" type="button">Restablecer valores</button>
+      </div>
+    </section>
+
+    <!-- VOTO 1 -->
+    <div class="step"><div class="ey">Paso 1 · Voto 1</div><h2>Cómo se asignan los fondos y se puntúa</h2></div>
+    <section class="voto1">
+      <div class="splitbar">
+        <div class="seg li" id="segLI"><div class="lbl">Bajos recursos · <span id="segLIp">75%</span></div><div class="amt num" id="segLIamt">$11,250</div></div>
+        <div class="seg open" id="segOpen"><div class="lbl">Abierto · valores · <span id="segOpenp">25%</span></div><div class="amt num" id="segOpenamt">$3,750</div></div>
+      </div>
+      <div class="splitctl">
+        <label for="splitR">División de fondos</label>
+        <input id="splitR" type="range" min="50" max="90" step="5" value="75" aria-label="Porcentaje a bajos recursos">
+        <span class="rd"><span id="splitRd">75%</span> bajos recursos / <span id="splitRd2">25%</span> abierto</span>
+      </div>
+
+      <div class="rubric">
+        <div class="rcard li">
+          <h3>Fondo Bajos Recursos</h3>
+          <p class="req">Requisito: ingreso ≤ 150% del Nivel Federal de Pobreza (FPL), según FAFSA.</p>
+          <div class="weight">
+            <div class="wrow"><span>Servicio comunitario</span><b id="svcRd">50%</b></div>
+            <input id="svcR" type="range" min="0" max="100" step="5" value="50" aria-label="Peso de servicio comunitario">
+          </div>
+          <div class="weight">
+            <div class="wrow"><span>Mérito académico</span><b id="merRd">50%</b></div>
+            <input id="merR" type="range" min="0" max="100" step="5" value="50" aria-label="Peso de mérito académico">
+          </div>
+          <p class="note-sm">Estos dos pesos ordenan la prioridad dentro del fondo (deben sumar 100%).</p>
+        </div>
+        <div class="rcard open">
+          <h3>Fondo Abierto · Valores</h3>
+          <p class="req">Sin requisito de ingreso. Se premia a quienes ejemplifican los valores de APS:</p>
+          <div class="chips"><span class="chip">Servicio</span><span class="chip">Justicia</span><span class="chip">Fidelidad a la comunidad</span></div>
+          <p class="note-sm">El voluntariado en APS cuenta como demostrar los tres valores. Los empates se resuelven por mérito.</p>
+        </div>
+      </div>
+
+      <p class="connect"><b>Cómo se conecta:</b> la división y la puntuación deciden <b>quién</b> recibe una beca y de qué fondo sale el dinero. El reparto del Paso&nbsp;2 decide la <b>forma</b> de las becas (todos vs. niveles); en la práctica, esa forma se aplica dentro de cada fondo.</p>
+    </section>
+
+    <!-- VOTO 2 -->
+    <div class="step"><div class="ey">Paso 2 · Voto 2</div><h2>Cómo se reparten las becas: todos vs. niveles</h2></div>
+    <section class="models">
+      <!-- MODEL A -->
+      <article class="card" id="cardA">
+        <div class="top">
+          <div class="tag">Modelo A · Alcance máximo</div>
+          <h2>Beca para todos los aplicantes</h2>
+          <p class="sub">Todos reciben al menos $500. Con lo que sobra, las becas suben de $500 en $500.</p>
+        </div>
+        <div class="result"><span class="count num" id="aCount">20</span><span class="of">becas · alcanza al <b id="aReach">100%</b> de los aplicantes</span></div>
+        <div class="caps" id="aCaps"></div>
+        <div class="legend" id="aLegend"></div>
+        <div class="rows">
+          <div class="row"><span class="k">Reparto</span><span class="v num" id="aBreak">10 de $1,000 · 10 de $500</span></div>
+          <div class="row"><span class="k">Total repartido</span><span class="v num" id="aTotal">$15,000</span></div>
+          <div class="row"><span class="k">Sobrante</span><span class="v num" id="aLeft">$0</span></div>
+          <div class="row"><span class="k">¿Cabe en el presupuesto?</span><span class="badge ok" id="aFit">Sí</span></div>
+        </div>
+        <div class="flag hide" id="aFlag"></div>
+      </article>
+
+      <!-- MODEL B -->
+      <article class="card" id="cardB">
+        <div class="top">
+          <div class="tag">Modelo B · Número fijo</div>
+          <h2>Tres niveles de beca</h2>
+          <p class="sub">Defines cuántas becas das en cada nivel. Los montos son múltiplos de $500.</p>
+        </div>
+        <div class="tiers" id="tierEditor"></div>
+        <div class="result" style="padding-top:14px"><span class="count num" id="bCount">18</span><span class="of">becas · alcanza al <b id="bReach">90%</b> de los aplicantes</span></div>
+        <div class="caps" id="bCaps"></div>
+        <div class="legend" id="bLegend"></div>
+        <div class="rows">
+          <div class="row"><span class="k">Total repartido</span><span class="v num" id="bTotal">$15,000</span></div>
+          <div class="row"><span class="k" id="bDiffK">Sobrante</span><span class="v num" id="bLeft">$0</span></div>
+          <div class="row"><span class="k">¿Cabe en el presupuesto?</span><span class="badge ok" id="bFit">Sí</span></div>
+        </div>
+        <div class="flag hide" id="bFlag"></div>
+      </article>
+    </section>
+
+    <!-- COMPARISON -->
+    <section class="compare">
+      <p class="lead" id="takeaway"></p>
+      <div class="grid">
+        <div class="hrow"></div><div class="hrow">Modelo A · Todos</div><div class="hrow">Modelo B · Niveles</div>
+        <div class="metric">Becas otorgadas</div><div class="va num" id="gAcount"></div><div class="vb num" id="gBcount"></div>
+        <div class="metric">Alcance</div><div class="va" id="gAreach"></div><div class="vb" id="gBreach"></div>
+        <div class="metric">Montos</div><div class="va" id="gAamt"></div><div class="vb" id="gBamt"></div>
+        <div class="metric">Total repartido</div><div class="va num" id="gAtot"></div><div class="vb num" id="gBtot"></div>
+        <div class="metric">Sobrante / faltante</div><div class="va num" id="gAleft"></div><div class="vb num" id="gBleft"></div>
+      </div>
+    </section>
+
+    <footer>
+      Herramienta de apoyo para la decisión de la Junta · <b>APS Phoenix</b><br>
+      Las becas son en múltiplos de $500. El monto final se confirma el 21 de julio y el número de aplicantes el 1 de julio de 2026.
+    </footer>
+  </main>
+
+<script>
+(function(){
+  "use strict";
+  var STEP = 500; // becas only in $500 increments
+  var GOLD = "#C8A951", GOLD_L = "#E7D49A";
+  var TIER_COLORS = ["var(--gold)","var(--silver)","var(--bronze)"];
+  var TIER_RAW = {0:"#C8A951",1:"#8A9BB5",2:"#C08A4E"};
+
+  var DEFAULTS = {
+    budget:15000, applicants:20, splitLI:75, wService:50,
+    tiers:[ {name:"Oro",amount:1500,qty:3}, {name:"Plata",amount:1000,qty:6}, {name:"Bronce",amount:500,qty:9} ]
+  };
+  var state = JSON.parse(JSON.stringify(DEFAULTS));
+
+  var usd = new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0});
+  var num = new Intl.NumberFormat("en-US");
+  function pct(x){ return Math.round(x*100)+"%"; }
+  function $(id){ return document.getElementById(id); }
+  function snap500(v){ return Math.round((+v||0)/STEP)*STEP; }
+
+  function capSVG(color, filled){
+    var fill = filled ? color : "none";
+    var stroke = filled ? color : "var(--unfunded)";
+    return '<svg viewBox="0 0 24 24" aria-hidden="true">'
+      + '<path d="M12 3.2 1.5 8 12 12.8 22.5 8 12 3.2z" fill="'+fill+'" stroke="'+stroke+'" stroke-width="1.3" stroke-linejoin="round"/>'
+      + '<path d="M5.2 10.6V14.4c0 1.2 3.1 2.6 6.8 2.6s6.8-1.4 6.8-2.6v-3.8" fill="none" stroke="'+stroke+'" stroke-width="1.3" stroke-linecap="round"/>'
+      + '</svg>';
+  }
+  function renderCaps(el, applicants, segments){
+    var html="", placed=0, cap=Math.min(applicants,80);
+    for (var s=0;s<segments.length;s++){
+      for (var i=0;i<segments[s].count && placed<cap;i++,placed++){
+        html += '<span class="cap">'+capSVG(segments[s].colorRaw,true)+'</span>';
+      }
+    }
+    while (placed<cap){ html += '<span class="cap">'+capSVG(null,false)+'</span>'; placed++; }
+    if (applicants>80){ html += '<span style="font-size:12px;color:var(--muted);align-self:center;margin-left:4px">+'+(applicants-80)+'</span>'; }
+    el.innerHTML = html;
+  }
+  function renderLegend(el, segments, unfundedLabel){
+    var html="";
+    segments.forEach(function(s){ html += '<span><i class="dot" style="background:'+s.colorCss+'"></i> '+s.label+'</span>'; });
+    html += '<span><i class="dot" style="background:var(--unfunded)"></i> '+unfundedLabel+'</span>';
+    el.innerHTML = html;
+  }
+
+  // ---- Model A: max reach at $500 floor, then $500 top-ups spread evenly ----
+  function computeA(){
+    var b=state.budget, a=state.applicants<1?1:state.applicants;
+    if (b < STEP){
+      return { recipients:0, segments:[], total:0, leftover:b, reach:0, notReached:a, ok:(b>=0),
+        flag:"Con estos fondos no alcanza para ninguna beca de "+usd.format(STEP)+".", break_:"—" };
+    }
+    var maxAtFloor = Math.floor(b/STEP);
+    var recipients = Math.min(a, maxAtFloor);
+    var base = recipients*STEP;
+    var topups = Math.floor((b-base)/STEP);
+    var full = Math.floor(topups/recipients);
+    var rem = topups % recipients;
+    var lowAmt = STEP*(1+full);
+    var highAmt = lowAmt + (rem>0?STEP:0);
+    var highCount = rem, lowCount = recipients-rem;
+    var total = highCount*highAmt + lowCount*lowAmt;
+    var leftover = b-total;
+    var notReached = a-recipients;
+    var segs=[];
+    if (highCount>0) segs.push({count:highCount, amount:highAmt, colorRaw:GOLD,  colorCss:"var(--gold)",  label:usd.format(highAmt)+" \u00d7"+highCount});
+    segs.push({count:lowCount, amount:lowAmt, colorRaw:(highCount>0?GOLD_L:GOLD), colorCss:(highCount>0?"var(--gold-l)":"var(--gold)"), label:usd.format(lowAmt)+" \u00d7"+lowCount});
+    var brk = segs.map(function(s){ return usd.format(s.amount)+" \u00d7"+s.count; }).join(" \u00b7 ");
+    var flag = (notReached>0) ? ("Los fondos no cubren $"+STEP+" para todos: "+recipients+" reciben beca y "+notReached+" quedan fuera (corte por puntuación).") : "";
+    return { recipients:recipients, segments:segs, total:total, leftover:leftover, reach:recipients/a, notReached:notReached, ok:true, flag:flag, break_:brk };
+  }
+
+  function computeB(){
+    var a=state.applicants<1?1:state.applicants, b=state.budget;
+    var recipients=0, total=0;
+    state.tiers.forEach(function(t){ recipients+=(t.qty||0); total+=(t.amount||0)*(t.qty||0); });
+    var leftover=b-total, fits=leftover>=0;
+    var funded=Math.min(recipients,a), reach=funded/a;
+    var notReached=Math.max(0,a-recipients), over=recipients>a;
+    var flag="";
+    if (over) flag="Pides "+recipients+" becas pero solo hay "+a+" aplicantes. Reduce las cantidades o espera más solicitudes.";
+    else if (!fits) flag="Este reparto excede el presupuesto por "+usd.format(Math.abs(leftover))+". Baja montos o cantidades.";
+    var segs = state.tiers.map(function(t,i){ return {count:(t.qty||0), amount:(t.amount||0), colorRaw:TIER_RAW[i], colorCss:TIER_COLORS[i], label:(t.name||("Nivel "+(i+1)))+" \u00b7 "+usd.format(t.amount||0)}; });
+    return { recipients:recipients, total:total, leftover:leftover, fits:fits, funded:funded, reach:reach, notReached:notReached, over:over, flag:flag, segments:segs };
+  }
+
+  function buildTierEditor(){
+    var wrap=$("tierEditor"); wrap.innerHTML="";
+    state.tiers.forEach(function(t,idx){
+      var row=document.createElement("div"); row.className="tier";
+      row.innerHTML =
+        '<span class="swatch" style="background:'+TIER_COLORS[idx]+'"></span>'
+        + '<input type="text" value="'+t.name+'" aria-label="Nombre del nivel '+(idx+1)+'" data-k="name" data-i="'+idx+'">'
+        + '<div class="fld"><span>$</span><input class="num" type="number" min="0" step="500" value="'+t.amount+'" aria-label="Monto del nivel '+(idx+1)+'" data-k="amount" data-i="'+idx+'"></div>'
+        + '<div class="fld qty"><input class="num" type="number" min="0" step="1" value="'+t.qty+'" aria-label="Cantidad del nivel '+(idx+1)+'" data-k="qty" data-i="'+idx+'"><span>becas</span></div>';
+      wrap.appendChild(row);
+    });
+    wrap.querySelectorAll("input").forEach(function(inp){
+      var ev = (inp.getAttribute("data-k")==="amount") ? "change" : "input";
+      inp.addEventListener(ev, function(){
+        var i=+inp.getAttribute("data-i"), k=inp.getAttribute("data-k");
+        if (k==="name") state.tiers[i].name=inp.value;
+        else if (k==="amount"){ var v=Math.max(0,snap500(inp.value)); state.tiers[i].amount=v; inp.value=v; }
+        else state.tiers[i].qty=Math.max(0,Math.round(+inp.value||0));
+        render();
+      });
+      if (inp.getAttribute("data-k")!=="amount"){ /* qty/name live */ }
+    });
+  }
+
+  function setFill(el, val, min, max, baseColor){
+    var f=((val-min)/(max-min))*100; el.style.setProperty("--fill", f+"%");
+  }
+
+  function renderVoto1(){
+    var li = state.splitLI, op = 100-li;
+    var liAmt = state.budget*li/100, opAmt = state.budget-liAmt;
+    $("segLI").style.flex = li; $("segOpen").style.flex = op;
+    $("segLIp").textContent = li+"%"; $("segOpenp").textContent = op+"%";
+    $("segLIamt").textContent = usd.format(liAmt); $("segOpenamt").textContent = usd.format(opAmt);
+    $("splitRd").textContent = li+"%"; $("splitRd2").textContent = op+"%";
+    $("svcRd").textContent = state.wService+"%"; $("merRd").textContent = (100-state.wService)+"%";
+  }
+
+  function render(){
+    var A=computeA(), B=computeB();
+
+    // Model A
+    $("aCount").textContent = num.format(A.recipients);
+    $("aReach").textContent = pct(A.reach);
+    $("aBreak").textContent = A.recipients ? A.break_ : "—";
+    $("aTotal").textContent = usd.format(A.total);
+    $("aLeft").textContent = usd.format(A.leftover);
+    var aFit=$("aFit"); aFit.textContent=A.ok?"Sí":"No"; aFit.className="badge "+(A.ok?"ok":"bad");
+    renderCaps($("aCaps"), state.applicants, A.segments);
+    renderLegend($("aLegend"), A.segments, "No alcanza esta vez");
+    var aFlag=$("aFlag"); if(A.flag){aFlag.textContent=A.flag;aFlag.classList.remove("hide");}else aFlag.classList.add("hide");
+
+    // Model B
+    $("bCount").textContent = num.format(B.recipients);
+    $("bReach").textContent = pct(B.reach);
+    $("bTotal").textContent = usd.format(B.total);
+    var bLeft=$("bLeft"), bDiffK=$("bDiffK"), bFit=$("bFit");
+    if (B.leftover<0){ bDiffK.textContent="Excede por"; bLeft.textContent=usd.format(Math.abs(B.leftover)); bLeft.style.color="var(--warn)"; }
+    else { bDiffK.textContent="Sobrante"; bLeft.textContent=usd.format(B.leftover); bLeft.style.color="var(--ink)"; }
+    bFit.textContent=B.fits?"Sí":"No"; bFit.className="badge "+(B.fits?"ok":"bad");
+    renderCaps($("bCaps"), state.applicants, B.segments);
+    renderLegend($("bLegend"), B.segments, "No recibe");
+    var bFlag=$("bFlag"); if(B.flag){bFlag.textContent=B.flag;bFlag.classList.remove("hide");}else bFlag.classList.add("hide");
+
+    // Comparison
+    var aAmts = A.segments.map(function(s){return usd.format(s.amount)+" \u00d7"+s.count;}).join(" \u00b7 ") || "—";
+    var bAmts = state.tiers.map(function(t){return usd.format(t.amount||0);}).join(" / ");
+    $("gAcount").textContent=num.format(A.recipients); $("gBcount").textContent=num.format(B.recipients);
+    $("gAreach").textContent=pct(A.reach); $("gBreach").textContent=pct(B.reach);
+    $("gAamt").textContent=aAmts; $("gBamt").textContent=bAmts;
+    $("gAtot").textContent=usd.format(A.total); $("gBtot").textContent=usd.format(B.total);
+    $("gAleft").textContent=usd.format(A.leftover);
+    $("gBleft").textContent=(B.leftover<0?"\u2212":"")+usd.format(Math.abs(B.leftover));
+
+    // takeaway
+    var t, diff=A.recipients-B.recipients;
+    var bMin = state.tiers.reduce(function(m,x){return Math.min(m,x.amount||Infinity);},Infinity);
+    var bMax = state.tiers.reduce(function(m,x){return Math.max(m,x.amount||0);},0);
+    if (!B.fits){ t = "El <b>Modelo B</b> tal como está no cabe en el presupuesto. El <b>Modelo A</b> reparte exactamente lo disponible y llega a <b>"+A.recipients+" estudiantes</b>."; }
+    else if (B.over){ t = "El <b>Modelo B</b> pide más becas que aplicantes. El <b>Modelo A</b> se ajusta solo y alcanza al <b>"+pct(A.reach)+"</b> de quienes solicitaron."; }
+    else if (diff>0){ t = "El <b>Modelo A</b> llega a <b>"+diff+" estudiante"+(diff===1?"":"s")+" más</b> ("+A.recipients+" vs "+B.recipients+"). El <b>Modelo B</b> premia el mérito con becas de "+usd.format(bMin)+" a "+usd.format(bMax)+", pero alcanza a menos."; }
+    else if (diff<0){ t = "El <b>Modelo B</b> otorga <b>"+(-diff)+" beca"+((-diff)===1?"":"s")+" más</b> en tres niveles. El <b>Modelo A</b> reparte el total entre "+A.recipients+" estudiantes."; }
+    else { t = "Ambos modelos llegan a <b>"+A.recipients+" estudiantes</b>. El <b>A</b> los iguala lo más posible; el <b>B</b> diferencia montos de "+usd.format(bMin)+" a "+usd.format(bMax)+"."; }
+    $("takeaway").innerHTML = t;
+
+    renderVoto1();
+  }
+
+  // dials
+  function bindPair(numId, rangeId, key, min, max){
+    var n=$(numId), r=$(rangeId);
+    function fromNum(){ var v=+n.value; if(isNaN(v))v=min; v=Math.max(min,Math.min(max,v)); state[key]=v; r.value=Math.max(min,Math.min(max,v)); setFill(r,r.value,min,max); render(); }
+    function fromRange(){ var v=+r.value; state[key]=v; n.value=v; setFill(r,v,min,max); render(); }
+    n.addEventListener("input", fromNum);
+    r.addEventListener("input", fromRange);
+    setFill(r,+r.value,min,max);
+  }
+  bindPair("budget","budgetR","budget",0,30000);
+  bindPair("apps","appsR","applicants",1,60);
+
+  // split slider
+  (function(){ var r=$("splitR"); function go(){ state.splitLI=+r.value; setFill(r,r.value,50,90); render(); } r.addEventListener("input",go); setFill(r,+r.value,50,90); })();
+
+  // service/merit linked sliders (sum 100)
+  (function(){
+    var svc=$("svcR"), mer=$("merR");
+    function fromSvc(){ state.wService=+svc.value; mer.value=100-state.wService; setFill(svc,svc.value,0,100); setFill(mer,mer.value,0,100); render(); }
+    function fromMer(){ state.wService=100-(+mer.value); svc.value=state.wService; setFill(svc,svc.value,0,100); setFill(mer,mer.value,0,100); render(); }
+    svc.addEventListener("input",fromSvc); mer.addEventListener("input",fromMer);
+    setFill(svc,+svc.value,0,100); setFill(mer,100-(+svc.value),0,100);
+  })();
+
+  $("reset").addEventListener("click", function(){
+    state = JSON.parse(JSON.stringify(DEFAULTS));
+    $("budget").value=state.budget; $("budgetR").value=state.budget; setFill($("budgetR"),state.budget,0,30000);
+    $("apps").value=state.applicants; $("appsR").value=state.applicants; setFill($("appsR"),state.applicants,1,60);
+    $("splitR").value=state.splitLI; setFill($("splitR"),state.splitLI,50,90);
+    $("svcR").value=state.wService; $("merR").value=100-state.wService; setFill($("svcR"),state.wService,0,100); setFill($("merR"),100-state.wService,0,100);
+    buildTierEditor(); render();
+  });
+
+  buildTierEditor();
+  render();
+})();
+</script>
+</body>
+</html>
